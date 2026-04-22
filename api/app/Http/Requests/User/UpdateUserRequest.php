@@ -1,0 +1,35 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests\User;
+
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class UpdateUserRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // Treat empty-string password as absent so users can update name/email without changing password
+        if ($this->input('password') === '') {
+            $this->merge(['password' => null, 'password_confirmation' => null]);
+        }
+    }
+
+    public function rules(): array
+    {
+        return [
+            'name'                  => ['sometimes', 'required', 'string', 'max:255'],
+            'email'                 => ['sometimes', 'required', 'email', 'max:255',
+                Rule::unique('users', 'email')->ignore($this->route('user'))],
+            'password'              => ['nullable', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['nullable', 'string'],
+        ];
+    }
+}
