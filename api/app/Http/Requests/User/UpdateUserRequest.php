@@ -14,6 +14,14 @@ class UpdateUserRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        // Treat empty-string password as absent so users can update name/email without changing password
+        if ($this->input('password') === '') {
+            $this->merge(['password' => null, 'password_confirmation' => null]);
+        }
+    }
+
     public function rules(): array
     {
         return [

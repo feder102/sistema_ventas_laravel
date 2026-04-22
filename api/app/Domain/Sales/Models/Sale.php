@@ -30,9 +30,13 @@ class Sale extends Model
 
     public function getTotalAttribute(): string
     {
-        $total = $this->items->sum(
-            fn (SaleItem $item) => (float) $item->unit_price * (float) $item->quantity
-        );
+        if ($this->relationLoaded('items')) {
+            $total = $this->items->sum(
+                fn (SaleItem $item) => (float) $item->unit_price * (float) $item->quantity
+            );
+        } else {
+            $total = (float) ($this->attributes['computed_total'] ?? 0);
+        }
         return number_format($total, 2);
     }
 }

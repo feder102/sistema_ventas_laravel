@@ -23,7 +23,7 @@ Represents a cashier or administrator who can operate the POS.
 ---
 
 ### Customer (Cliente)
-A customer associated with a sale. Required for every sale.
+A customer optionally associated with a sale. Walk-in (anonymous) sales are supported.
 
 | Field | Type | Rules |
 |---|---|---|
@@ -34,8 +34,8 @@ A customer associated with a sale. Required for every sale.
 | updated_at | timestamp | auto |
 
 **Business rules:**
-- Every sale must have a customer — anonymous/walk-in not supported (legacy constraint kept; ambiguity documented below)
-- Deleting a customer cascades to their sales (legacy behavior kept; see edge case #1)
+- A sale may have a customer or be anonymous (`customer_id = null`). The legacy system required a customer; the new system relaxes this to support walk-in sales.
+- Deleting a customer does NOT cascade to sales (see edge case #1)
 
 **Ambiguity #1 — Customer deletion cascade:**
 The legacy schema cascades customer deletion to sales, which destroys sales history. Decision: in the new system we use `SET NULL` on `sales.customer_id` and make customer_id nullable. This preserves history while allowing customer removal. A `[Deleted Customer]` placeholder is shown in the UI.
@@ -112,7 +112,7 @@ A line item within a sale. Denormalized snapshot at time of sale.
 
 The cart is not persisted in the database. In the legacy system it lived in PHP session. In the new system:
 - Cart state lives in Zustand store in memory
-- Cart is persisted to IndexedDB for offline durability and cross-tab consistency
+- Cart is persisted to localStorage via Zustand `persist` middleware for durability across page reloads
 - Each line item in the cart tracks: product snapshot (barcode, descripcion, precio_venta), quantity, and a `productId` for stock lookups
 - When a sale is completed, the cart is cleared
 

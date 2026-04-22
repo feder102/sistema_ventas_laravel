@@ -14,7 +14,7 @@ export function SaleDetailPage() {
       <div className="flex items-center gap-4 mb-6 flex-wrap">
         <Link to="/sales"><Button variant="secondary" size="sm">← Volver</Button></Link>
         <h1 className="text-2xl font-bold">Venta #{sale.id}</h1>
-        <Link to={`/sales/${sale.id}/print`} target="_blank">
+        <Link to={`/sales/${sale.id}/print`} target="_blank" rel="noopener noreferrer">
           <Button variant="ghost" size="sm">🖨️ Imprimir ticket</Button>
         </Link>
       </div>

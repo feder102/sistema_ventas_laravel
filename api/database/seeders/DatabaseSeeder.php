@@ -16,20 +16,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Admin user
-        User::create([
+        // Idempotent: safe to run on every container startup
+        User::firstOrCreate(['email' => 'admin@pos.local'], [
             'name'     => 'Admin',
-            'email'    => 'admin@pos.local',
             'password' => Hash::make('password'),
         ]);
 
-        User::create([
+        User::firstOrCreate(['email' => 'cajero1@pos.local'], [
             'name'     => 'Cajero 1',
-            'email'    => 'cajero1@pos.local',
             'password' => Hash::make('password'),
         ]);
 
-        // Customers
         $customers = [
             ['nombre' => 'Juan Pérez',       'telefono' => '555-1001'],
             ['nombre' => 'María García',      'telefono' => '555-1002'],
@@ -39,52 +36,53 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($customers as $data) {
-            Customer::create($data);
+            Customer::firstOrCreate(['nombre' => $data['nombre']], $data);
         }
 
-        // Products (realistic POS catalog)
         $products = [
             ['codigo_barras' => '7501055300906', 'descripcion' => 'Coca-Cola 600ml',        'precio_compra' => 9.00,  'precio_venta' => 15.00, 'existencia' => 48],
             ['codigo_barras' => '7501055390013', 'descripcion' => 'Pepsi 600ml',             'precio_compra' => 8.50,  'precio_venta' => 14.00, 'existencia' => 36],
             ['codigo_barras' => '7501055311018', 'descripcion' => 'Agua Natural 1.5L',       'precio_compra' => 6.00,  'precio_venta' => 10.00, 'existencia' => 60],
             ['codigo_barras' => '7501000641321', 'descripcion' => 'Sabritas Originales 45g', 'precio_compra' => 7.00,  'precio_venta' => 12.00, 'existencia' => 24],
             ['codigo_barras' => '7501000638666', 'descripcion' => 'Ruffles Queso 45g',       'precio_compra' => 7.00,  'precio_venta' => 12.00, 'existencia' => 24],
-            ['codigo_barras' => '7501055360016', 'descripcion' => 'Gatorade Limón 600ml',    'precio_compra' => 12.00,  'precio_venta' => 20.00, 'existencia' => 30],
+            ['codigo_barras' => '7501055360016', 'descripcion' => 'Gatorade Limón 600ml',    'precio_compra' => 12.00, 'precio_venta' => 20.00, 'existencia' => 30],
             ['codigo_barras' => '7501020564022', 'descripcion' => 'Boing Mango 250ml',       'precio_compra' => 5.00,  'precio_venta' => 9.00,  'existencia' => 48],
             ['codigo_barras' => '7501000664307', 'descripcion' => 'Pan Bimbo Blanco',        'precio_compra' => 30.00, 'precio_venta' => 42.00, 'existencia' => 15],
-            ['codigo_barras' => '7501031310401', 'descripcion' => 'Leche Lala Entera 1L',   'precio_compra' => 18.00, 'precio_venta' => 25.00, 'existencia' => 20],
+            ['codigo_barras' => '7501031310401', 'descripcion' => 'Leche Lala Entera 1L',    'precio_compra' => 18.00, 'precio_venta' => 25.00, 'existencia' => 20],
             ['codigo_barras' => '7501000633036', 'descripcion' => 'Doritos Nacho 65g',       'precio_compra' => 9.50,  'precio_venta' => 16.00, 'existencia' => 30],
         ];
 
         foreach ($products as $data) {
-            Product::create($data);
+            Product::firstOrCreate(['codigo_barras' => $data['codigo_barras']], $data);
         }
 
-        // Sample sales
-        $this->createSampleSale(
-            customerId: 1,
-            items: [
-                ['product_id' => 1, 'quantity' => 2],
-                ['product_id' => 4, 'quantity' => 1],
-            ]
-        );
+        // Sample sales: only seed if no sales exist yet
+        if (Sale::count() === 0) {
+            $this->createSampleSale(
+                customerId: Customer::where('nombre', 'Juan Pérez')->value('id'),
+                items: [
+                    ['product_id' => Product::where('codigo_barras', '7501055300906')->value('id'), 'quantity' => 2],
+                    ['product_id' => Product::where('codigo_barras', '7501000641321')->value('id'), 'quantity' => 1],
+                ]
+            );
 
-        $this->createSampleSale(
-            customerId: 2,
-            items: [
-                ['product_id' => 3, 'quantity' => 3],
-                ['product_id' => 8, 'quantity' => 1],
-                ['product_id' => 9, 'quantity' => 2],
-            ]
-        );
+            $this->createSampleSale(
+                customerId: Customer::where('nombre', 'María García')->value('id'),
+                items: [
+                    ['product_id' => Product::where('codigo_barras', '7501055311018')->value('id'), 'quantity' => 3],
+                    ['product_id' => Product::where('codigo_barras', '7501000664307')->value('id'), 'quantity' => 1],
+                    ['product_id' => Product::where('codigo_barras', '7501031310401')->value('id'), 'quantity' => 2],
+                ]
+            );
 
-        $this->createSampleSale(
-            customerId: null,
-            items: [
-                ['product_id' => 5, 'quantity' => 1],
-                ['product_id' => 6, 'quantity' => 2],
-            ]
-        );
+            $this->createSampleSale(
+                customerId: null,
+                items: [
+                    ['product_id' => Product::where('codigo_barras', '7501000638666')->value('id'), 'quantity' => 1],
+                    ['product_id' => Product::where('codigo_barras', '7501055360016')->value('id'), 'quantity' => 2],
+                ]
+            );
+        }
     }
 
     /** @param array<int, array{product_id: int, quantity: float}> $items */

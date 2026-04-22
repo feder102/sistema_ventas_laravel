@@ -8,8 +8,8 @@ use App\Domain\Products\Models\Product;
 use App\Domain\Sales\Models\Sale;
 use App\Domain\Sales\Repositories\SaleRepository;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class SaleService
 {
@@ -57,10 +57,12 @@ class SaleService
             }
 
             if (!empty($errors)) {
-                throw ValidationException::withMessages(array_merge(
-                    ['message' => 'Insufficient stock'],
-                    $errors,
-                ));
+                throw new HttpResponseException(
+                    response()->json([
+                        'message' => 'Insufficient stock',
+                        'errors'  => $errors,
+                    ], 422)
+                );
             }
 
             return $this->repository->create(

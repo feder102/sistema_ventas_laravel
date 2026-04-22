@@ -7,10 +7,11 @@ App
 ├── AuthGuard (redirect to /login if unauthenticated)
 │   └── Layout
 │       ├── Navbar
-│       │   ├── NavLink (Home, Products, Sell, Sales, Customers, Users)
-│       │   └── UserMenu (name + logout)
+│       │   ├── NavLink (Products, Sell, Sales, Customers, Users)
+│       │   ├── UserMenu (name + logout)
+│       │   └── OfflineBanner (inline strip when navigator.onLine = false)
 │       └── <Outlet> (page content)
-│           ├── HomePage          /
+│           ├── / → redirect to /sell
 │           ├── PosPage           /sell
 │           │   ├── BarcodeInput
 │           │   ├── CartTable
@@ -37,7 +38,6 @@ App
 │           │   ├── UserTable
 │           │   └── UserModal
 │           └── LoginPage         /login (outside AuthGuard)
-└── OfflineBanner (fixed top strip when navigator.onLine = false)
 ```
 
 ---
@@ -79,7 +79,7 @@ interface CartStore {
   total: number; // derived
 }
 ```
-The cart store is persisted to IndexedDB via `persist` middleware using a Dexie adapter.
+The cart store is persisted to localStorage via Zustand's built-in `persist` middleware.
 
 **`useOnlineStore`**
 ```typescript

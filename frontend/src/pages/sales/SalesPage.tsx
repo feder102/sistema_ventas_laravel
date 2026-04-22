@@ -64,7 +64,7 @@ export function SalesPage() {
                     <Link to={`/sales/${s.id}`}>
                       <Button size="sm" variant="secondary">Ver</Button>
                     </Link>
-                    <Link to={`/sales/${s.id}/print`} target="_blank">
+                    <Link to={`/sales/${s.id}/print`} target="_blank" rel="noopener noreferrer">
                       <Button size="sm" variant="ghost">🖨️</Button>
                     </Link>
                     <Button size="sm" variant="danger" onClick={() => handleDelete(s.id)}>

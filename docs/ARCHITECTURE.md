@@ -15,8 +15,8 @@ The modernized POS is split into two independent deployable units:
 │  │ Port 5173  │   │ Port 8000  │   ┌────────────────┐  │
 │  └─────┬──────┘   └────────────┘   │     Redis      │  │
 │        │                           │  (cache/queue) │  │
-│        │ IndexedDB (Dexie.js)      └────────────────┘  │
-│        │ offline-first cart                             │
+│        │ localStorage (Zustand)    └────────────────┘  │
+│        │ cart persistence                               │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -131,7 +131,7 @@ POST /api/sales ◄── optimistic update in CartStore
 
 1. **Products catalog**: synced to IndexedDB on login and every 5 min via TanStack Query background refetch
 2. **Customers list**: synced to IndexedDB on login
-3. **Cart**: lives in Zustand + persisted to IndexedDB (`cart` table)
+3. **Cart**: lives in Zustand + persisted to localStorage via `persist` middleware (survives page reload; not cross-tab)
 4. **Pending sales**: stored in IndexedDB `pending_sales` table; processed by a background sync worker when connectivity is restored
 5. **Conflict resolution**: server is the source of truth for stock; a sale that fails due to insufficient stock is surfaced to the cashier on next sync
 
