@@ -2,8 +2,8 @@
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-require 'api/vendor/autoload.php';
-$app = require_once 'api/bootstrap/app.php';
+require 'vendor/autoload.php';
+$app = require_once 'bootstrap/app.php';
 $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
