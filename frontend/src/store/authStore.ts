@@ -11,22 +11,26 @@ interface AuthState {
   hydrate: () => void
 }
 
+function loadFromStorage(): Pick<AuthState, 'token' | 'user'> {
+  const token = localStorage.getItem('pos_token')
+  const raw   = localStorage.getItem('pos_user')
+  if (token && raw) {
+    try {
+      return { token, user: JSON.parse(raw) as User }
+    } catch {
+      localStorage.removeItem('pos_token')
+      localStorage.removeItem('pos_user')
+    }
+  }
+  return { token: null, user: null }
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
-  user:      null,
-  token:     null,
+  ...loadFromStorage(),
   isLoading: false,
 
   hydrate() {
-    const token = localStorage.getItem('pos_token')
-    const raw   = localStorage.getItem('pos_user')
-    if (token && raw) {
-      try {
-        set({ token, user: JSON.parse(raw) as User })
-      } catch {
-        localStorage.removeItem('pos_token')
-        localStorage.removeItem('pos_user')
-      }
-    }
+    set(loadFromStorage())
   },
 
   async login(email, password) {
