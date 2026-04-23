@@ -59,8 +59,10 @@ export function UsersPage() {
         toast('Usuario actualizado', 'success')
       }
       setModal(null)
-    } catch {
-      toast('Error al guardar', 'error')
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })
+        ?.response?.data?.message ?? 'Error al guardar'
+      toast(msg, 'error')
     }
   }
 
