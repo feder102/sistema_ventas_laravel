@@ -2,8 +2,8 @@
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-require 'vendor/autoload.php';
-$app = require_once 'bootstrap/app.php';
+require __DIR__ . '/vendor/autoload.php';
+$app = require_once __DIR__ . '/bootstrap/app.php';
 $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
@@ -40,4 +40,3 @@ User::create([
 echo "✓ Usuarios creados exitosamente\n";
 echo "Admin password:    {$adminPassword}\n";
 echo "Cajero 1 password: {$cashierPassword}\n";
-?>

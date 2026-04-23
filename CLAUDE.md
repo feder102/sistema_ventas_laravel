@@ -105,9 +105,10 @@ npm run build
 - **Pending sales**: IndexedDB queue; background sync on reconnect
 
 ### Authentication
-- User logs in → receives Sanctum SPA token + httpOnly cookie
-- Token stored in Cookie + localStorage fallback
-- All API calls include token via axios interceptor
+- User logs in → receives a Sanctum **personal access token** (not a cookie)
+- Token stored in `localStorage` under `pos_token`
+- All API calls send `Authorization: Bearer <token>` via axios request interceptor
+- On 401, interceptor clears localStorage and redirects to `/login`
 
 ## Common Tasks
 
